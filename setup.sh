@@ -243,31 +243,31 @@ sed -i "s|^server_url:.*|server_url: https://${DOMAIN}|" "$SCRIPT_DIR/headscale/
 echo -e "${GREEN}Headscale config updated.${NC}"
 
 # Step 6: Configure Headplane (only if headplane is selected)
-# if [[ "$INSTALL_ADMIN" = true && " ${ADMIN_PANELS[*]} " =~ " headplane " ]]; then
-#     echo -e "\n${YELLOW}Step 6: Configuring Headplane...${NC}"
-#     cat > "$SCRIPT_DIR/admin-panel/container-config/headplane.yaml" << EOF
-# server:
-#   host: "0.0.0.0"
-#   port: 3000
-#   base_url: "https://${DOMAIN}"
-#   cookie_secret: "${COOKIE_SECRET}"
-#   cookie_secure: true
-#   cookie_max_age: 86400
-#   data_path: "/var/lib/headplane"
-#
-# headscale:
-#   url: "http://headscale:8080"
-#   config_path: "/etc/headscale/config.yaml"
-#   config_strict: false
-#
-# integration:
-#   docker:
-#     enabled: true
-#     container_label: "me.tale.headplane.target=headscale"
-#     socket: "unix:///var/run/docker.sock"
-# EOF
-#     echo -e "${GREEN}Headplane config created.${NC}"
-# fi
+if [[ "$INSTALL_ADMIN" = true && " ${ADMIN_PANELS[*]} " =~ " headplane " ]]; then
+    echo -e "\n${YELLOW}Step 6: Configuring Headplane...${NC}"
+    cat > "$SCRIPT_DIR/admin-panel/container-config/headplane.yaml" << EOF
+server:
+  host: "0.0.0.0"
+  port: 3000
+  base_url: "https://${DOMAIN}"
+  cookie_secret: "${COOKIE_SECRET}"
+  cookie_secure: true
+  cookie_max_age: 86400
+  data_path: "/var/lib/headplane"
+
+headscale:
+  url: "http://headscale:8080"
+  config_path: "/etc/headscale/config.yaml"
+  config_strict: false
+
+integration:
+  docker:
+    enabled: true
+    container_label: "me.tale.headplane.target=headscale"
+    socket: "unix:///var/run/docker.sock"
+EOF
+    echo -e "${GREEN}Headplane config created.${NC}"
+fi
 
 # Step 7: Start containers
 echo -e "\n${YELLOW}Step 7: Starting containers...${NC}"
