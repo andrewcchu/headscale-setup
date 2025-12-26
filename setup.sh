@@ -17,7 +17,7 @@ INSTALL_HEADSCALE=true
 INSTALL_ADMIN=true
 EXPOSE_LOCALHOST=false
 UPDATE_MODE=false
-ADMIN_PANELS=("headscale-ui" "headplane")
+ADMIN_PANELS=("headplane")
 
 # Show help
 show_help() {
