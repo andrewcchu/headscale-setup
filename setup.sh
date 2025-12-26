@@ -16,6 +16,7 @@ INSTALL_CADDY=true
 INSTALL_HEADSCALE=true
 INSTALL_ADMIN=true
 EXPOSE_LOCALHOST=false
+UPDATE_MODE=false
 ADMIN_PANELS=("headscale-ui" "headplane")
 
 # Show help
@@ -39,6 +40,7 @@ show_help() {
     echo "  --expose-localhost          Expose services on localhost"
     echo "                              headscale:4000, headscale-ui:4020,"
     echo "                              headscale-admin:4021, headplane:4022"
+    echo "  --update                    Pull latest images and prune unused ones before starting"
     echo ""
     echo "Examples:"
     echo "  ./setup.sh                                    # Install everything"
@@ -53,6 +55,19 @@ show_help() {
     echo "  ./setup.sh apikey"
     echo "  ./setup.sh hash mypassword"
     exit 0
+}
+
+perform_update() {
+    local compose_files="$1"
+    echo -e "\n${YELLOW}Update Mode Enabled${NC}"
+    
+    echo -e "${BLUE}Pulling latest images...${NC}"
+    docker compose $compose_files pull
+
+    echo -e "${BLUE}Pruning unused images...${NC}"
+    docker image prune -f
+    
+    echo -e "${GREEN}Images updated successfully.${NC}"
 }
 
 # Check if running as headscale shorthand
@@ -88,6 +103,10 @@ fi
 # Parse arguments
 for arg in "$@"; do
     case $arg in
+	--update)
+            UPDATE_MODE=true
+            shift
+            ;;
         --skip-caddy)
             INSTALL_CADDY=false
             shift
@@ -137,6 +156,7 @@ else
     echo -e "  Admin UIs:    ${RED}None${NC}"
 fi
 echo -e "  Expose Local: $([ "$EXPOSE_LOCALHOST" = true ] && echo "${GREEN}Yes${NC}" || echo "${RED}No${NC}")"
+echo -e "  Update Mode:  $([ "$UPDATE_MODE" = true ] && echo "${GREEN}Yes${NC}" || echo "${RED}No${NC}")"
 echo ""
 
 # Step 1: Create Docker network
@@ -256,6 +276,10 @@ echo -e "\n${YELLOW}Step 7: Starting containers...${NC}"
 COMPOSE_FILES="-f $SCRIPT_DIR/compose.yaml"
 if [[ "$EXPOSE_LOCALHOST" = true ]]; then
     COMPOSE_FILES+=" -f $SCRIPT_DIR/compose.expose-localhost.yaml"
+fi
+
+if [[ "$UPDATE_MODE" = true ]]; then
+    perform_update "$COMPOSE_FILES"
 fi
 
 # Build list of services to start

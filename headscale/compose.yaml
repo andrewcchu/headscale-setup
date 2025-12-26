@@ -1,7 +1,7 @@
 services:
   headscale:
     container_name: headscale
-    image: headscale/headscale:0.27.1
+    image: headscale/headscale:latest
     restart: unless-stopped
     labels:
       - "me.tale.headplane.target=headscale"
